@@ -52,9 +52,9 @@ quando há chamadas aninhadas):
 
 ## Compilação e execução
 
-# Instruções de Execução — Jogo "Adivinhe o Número"
+## Instruções de Execução
 
-## Pré-requisitos
+### Pré-requisitos
 
 O programa foi escrito em Assembly RISC-V (RV32IM) e usa as *environment calls*
 (`ecall`) padrão do simulador **RARS** (RISC-V Assembler and Runtime Simulator).
@@ -62,22 +62,22 @@ O programa foi escrito em Assembly RISC-V (RV32IM) e usa as *environment calls*
 1. Baixe o RARS (arquivo `.jar`) em: https://github.com/TheThirdOne/rars/releases
 2. É necessário ter o Java instalado (`java -version` para conferir).
 
-## Como executar
+### Como executar
 
-### Opção A — Interface gráfica do RARS
+#### Opção A — Interface gráfica do RARS
 1. Abra o RARS: `java -jar rars.jar`
 2. Vá em **File → Open** e selecione o arquivo `jogo.s`.
 3. Clique em **Assemble** (F3) para montar o programa.
 4. Clique em **Run** (F5) para executar.
 5. Digite seus palpites no console do RARS quando solicitado.
 
-### Opção B — Linha de comando
+#### Opção B — Linha de comando
 ```bash
 java -jar rars.jar jogo.s
 ```
 O jogo iniciará automaticamente no terminal, pedindo os palpites do jogador.
 
-## Como jogar
+### Como jogar
 
 1. O programa exibirá uma mensagem de boas-vindas.
 2. Digite um número entre 1 e 100 quando solicitado ("Digite seu palpite:").
@@ -89,7 +89,7 @@ O jogo iniciará automaticamente no terminal, pedindo os palpites do jogador.
    - O histórico completo de todos os palpites digitados, na ordem em que
      foram feitos (obtido percorrendo a lista ligada alocada na heap).
 
-## Observações técnicas
+### Observações técnicas
 
 - O número secreto é gerado por um **Gerador Congruente Linear (LCG)**
   implementado manualmente (função `gera_aleatorio`), usando o relógio do
