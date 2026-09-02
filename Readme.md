@@ -50,8 +50,6 @@ quando há chamadas aninhadas):
 - **`imprime_string`** / **`imprime_inteiro`**: encapsulam as `ecall`s de
   impressão, evitando repetição de código.
 
-## Compilação e execução
-
 ## Instruções de Execução
 
 ### Pré-requisitos
