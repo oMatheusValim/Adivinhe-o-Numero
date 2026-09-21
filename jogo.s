@@ -72,7 +72,7 @@ loop_jogo:
     sw      t1, 4(s2)        # grava o endereço do nó no campo next que atualmente é a tail, pendurando o nó no fim da lista
     mv      s2, t1           # Atualiza a tail para que aponte para o novo nó
     j       compara_palpite  
-lista_vazia:
+lista_vazia:                 # sea lista ja estava vazia, o novo nó vira tanto 
     mv      s1, t1           # head = novo no
     mv      s2, t1           # tail = novo no
 
