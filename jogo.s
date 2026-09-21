@@ -72,21 +72,22 @@ loop_jogo:
     sw      t1, 4(s2)        # grava o endereço do nó no campo next que atualmente é a tail, pendurando o nó no fim da lista
     mv      s2, t1           # Atualiza a tail para que aponte para o novo nó
     j       compara_palpite  
-lista_vazia:                 # sea lista ja estava vazia, o novo nó vira tanto 
+lista_vazia:                 # sea lista ja estava vazia, o novo nó vira tanto tail quanto head
     mv      s1, t1           # head = novo no
     mv      s2, t1           # tail = novo no
 
+# mantem o nó tail separado para não precisar percorrer toda a árvore em casa interação, não precisando ser O(n) por inserção
 compara_palpite:
     # Compara o palpite do jogador com o numero secreto
-    blt     s4, s0, palpite_baixo
-    bgt     s4, s0, palpite_alto
-    j       acertou
+    blt     s4, s0, palpite_baixo   # blt significa branch if less than, é um <
+    bgt     s4, s0, palpite_alto    # bgt significa branch if greater than, é um >
+    j       acertou                 # o j é um jump incondicional
 
+# exibe a mensagem, dá um jump para o topo da lista de novo e pede outro valor
 palpite_baixo:
-    la      a0, msg_muito_baixo
+    la      a0, msg_muito_baixo     
     jal     imprime_string
     j       loop_jogo
-
 palpite_alto:
     la      a0, msg_muito_alto
     jal     imprime_string
@@ -95,7 +96,7 @@ palpite_alto:
 acertou:
     # Exibe a mensagem de parabens
     la      a0, msg_correto
-    jal     imprime_string
+    jal     imprime_string  
 
     # Exibe o numero total de tentativas realizadas
     la      a0, msg_tentativas_qtd
