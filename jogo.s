@@ -78,49 +78,49 @@ lista_vazia:                 # sea lista ja estava vazia, o novo nó vira tanto
 
 compara_palpite:
     # Compara o palpite do jogador com o numero secreto
-    blt     s4, s0, palpite_baixo
-    bgt     s4, s0, palpite_alto
-    j       acertou
+    blt     s4, s0, palpite_baixo # se s4 < s0 desvia para palpite_baixo (palpite menor que o numero)
+    bgt     s4, s0, palpite_alto  #se s4 > s0 desvia para palpite_alto (palpite maior que o numero)
+    j       acertou		   # se não for nem menor nem maior
 
 palpite_baixo:
-    la      a0, msg_muito_baixo
-    jal     imprime_string
-    j       loop_jogo
+    la      a0, msg_muito_baixo # carrega mensagem de palpite muito baixo
+    jal     imprime_string 
+    j       loop_jogo		# volta para o loop do jogo
 
 palpite_alto:
-    la      a0, msg_muito_alto
+    la      a0, msg_muito_alto #carrega mensagem de palpite muito alto
     jal     imprime_string
-    j       loop_jogo
+    j       loop_jogo		# volta para o loop do jogo
 
 acertou:
     # Exibe a mensagem de parabens
-    la      a0, msg_correto
+    la      a0, msg_correto	# Carrega a mensagem de que acertou
     jal     imprime_string
 
     # Exibe o numero total de tentativas realizadas
-    la      a0, msg_tentativas_qtd
+    la      a0, msg_tentativas_qtd # carrega mensagem de quantidade de tentativas
     jal     imprime_string
-    mv      a0, s3
-    jal     imprime_inteiro
-    la      a0, msg_newline
+    mv      a0, s3		   # carrega a3 (qtd de tentativas) em a0 (a0 = a3)
+    jal     imprime_inteiro	   
+    la      a0, msg_newline	   # carrega uma quebra de linha
     jal     imprime_string
 
     # Percorre a lista ligada ate o fim, imprimindo todas as tentativas
-    la      a0, msg_lista_tentativas
+    la      a0, msg_lista_tentativas	#carrega a mensagem de historico de tentativas
     jal     imprime_string
-    mv      a0, s1
-    jal     imprime_lista
-    la      a0, msg_newline
+    mv      a0, s1			# carrega s1 em a0, endereço do primeiro no da lista 
+    jal     imprime_lista		#imprime a lista de numeros que tentou
+    la      a0, msg_newline		
     jal     imprime_string
 
     # Epilogo: restaura os registradores salvos e desfaz o quadro de pilha
-    lw      ra, 28(sp)
+    lw      ra, 28(sp)		# restaura cada valor salvo previamente na pilha de volta aos seus registradores originais
     lw      s0, 24(sp)
     lw      s1, 20(sp)
     lw      s2, 16(sp)
     lw      s3, 12(sp)
     lw      s4, 8(sp)
-    addi    sp, sp, 32
+    addi    sp, sp, 32         #  devolve os 32bytes reservados movendo o ponteiro para a posicao inicial
 
     li      a7, 10           # ecall 10: encerra o programa
     ecall
@@ -128,15 +128,15 @@ acertou:
 
 # gera_aleatorio: gera um numero pseudoaleatorio entre 1 e 100
 #   utilizando o algoritmo de Gerador Congruente Linear (LCG):
-#       X(n+1) = (a * X(n) + c) mod m
+#       X_(n+1) = (a * X_(n) + c) mod m
 #   Parametros:
 #       a0 = semente (X0)
 #   Retorno:
 #       a0 = numero pseudoaleatorio no intervalo [1, 100]
 
 gera_aleatorio:
-    addi    sp, sp, -4
-    sw      ra, 0(sp)
+    addi    sp, sp, -4 # reserva 4bytes na pilha
+    sw      ra, 0(sp)  # salva o endereco de retorno na pilha
 
     li      t0, 1103515245   # constante multiplicadora (a)
     li      t1, 12345        # constante aditiva (c)
@@ -151,9 +151,9 @@ gera_aleatorio:
     remu    t5, t2, t4       # t5 = t2 mod 100 -> intervalo [0, 99]
     addi    a0, t5, 1        # a0 = numero no intervalo [1, 100]
 
-    lw      ra, 0(sp)
-    addi    sp, sp, 4
-    ret
+    lw      ra, 0(sp)       #volta o endereco de retorno a partir da pilha
+    addi    sp, sp, 4       #libera 4 bytes
+    ret                     #retorna
 
 # cria_no: aloca dinamicamente, na heap, um no da lista ligada
 #   Estrutura do no (8 bytes):
@@ -165,9 +165,9 @@ gera_aleatorio:
 #       a0 = endereco do no alocado na heap
 
 cria_no:
-    addi    sp, sp, -8
-    sw      ra, 4(sp)
-    sw      s0, 0(sp)
+    addi    sp, sp, -8      #reserva 8 bytes na pilha
+    sw      ra, 4(sp)       #salva o endereco de retorno no offset 4 (da pilha)
+    sw      s0, 0(sp)       #salva o reg s0 no offset 0
 
     mv      s0, a0           # salva o valor do palpite antes da syscall
 
@@ -178,10 +178,10 @@ cria_no:
     sw      s0, 0(a0)        # armazena o valor da tentativa no no
     sw      zero, 4(a0)      # inicializa o ponteiro "proximo" como NULL
 
-    lw      ra, 4(sp)
-    lw      s0, 0(sp)
-    addi    sp, sp, 8
-    ret
+    lw      ra, 4(sp)        # volta com o endereco original da pilha
+    lw      s0, 0(sp)        # restaura o valor original do reg
+    addi    sp, sp, 8        # libera 8bytes 
+    ret                      # retorna
 
 
 # imprime_lista: percorre a lista ligada ate o fim, imprimindo
@@ -190,23 +190,23 @@ cria_no:
 #       a0 = endereco do primeiro no da lista (head)
 
 imprime_lista:
-    addi    sp, sp, -16
-    sw      ra, 12(sp)
+    addi    sp, sp, -16      # reserva 16bytes 
+    sw      ra, 12(sp)       # salva o endereco de retorno no offset 12
     sw      s0, 8(sp)        # s0 = no atual durante o percurso
     sw      s1, 4(sp)        # s1 = flag indicando se e o primeiro elemento
 
-    mv      s0, a0
+    mv      s0, a0           # s0 = a0 (s0 recebe o endereco do primeiro do head)
     li      s1, 1            # 1 = ainda e o primeiro elemento (sem separador antes)
 
 percorre_lista:
-    beq     s0, zero, fim_lista
+    beq     s0, zero, fim_lista     # se s0 == NULL(0), salta pro final
 
-    beqz    s1, imprime_separador
-    li      s1, 0
-    j       imprime_valor_no
+    beqz    s1, imprime_separador   # se s1 == 0, salta pra imprimir virgula
+    li      s1, 0                   # se s1 == 1, primeiro elemento, zera a flag
+    j       imprime_valor_no        #pula a impressao da virgula e vai direto pra impressao do numero
 
 imprime_separador:
-    la      a0, msg_separador
+    la      a0, msg_separador   #carrega endereco da string virgula no reg a0   
     jal     imprime_string
 
 imprime_valor_no:
@@ -214,14 +214,14 @@ imprime_valor_no:
     jal     imprime_inteiro
 
     lw      s0, 4(s0)        # avanca para o proximo no da lista
-    j       percorre_lista
+    j       percorre_lista   # Volta pro inicio do laco
 
 fim_lista:
-    lw      ra, 12(sp)
-    lw      s0, 8(sp)
-    lw      s1, 4(sp)
-    addi    sp, sp, 16
-    ret
+    lw      ra, 12(sp)  #restaura endereco de retorno ra
+    lw      s0, 8(sp)   #restaura valor original do s0
+    lw      s1, 4(sp)   #restaura o valor original de s1
+    addi    sp, sp, 16  #libera os 16bytes alocados
+    ret                 #retorna
 
 
 # imprime_string: imprime uma string terminada em nulo
@@ -229,15 +229,15 @@ fim_lista:
 #       a0 = endereco da string
 
 imprime_string:
-    addi    sp, sp, -4
-    sw      ra, 0(sp)
+    addi    sp, sp, -4      #reserva 4bytes 
+    sw      ra, 0(sp)       #salva o endereco de retorno ra
 
     li      a7, 4            # ecall 4: imprime uma string
     ecall
 
-    lw      ra, 0(sp)
-    addi    sp, sp, 4
-    ret
+    lw      ra, 0(sp)       #restaura o endereco de retorno ra
+    addi    sp, sp, 4       #libera os 4 bytes
+    ret                     #retorna
 
 
 # imprime_inteiro: imprime um numero inteiro
@@ -245,12 +245,12 @@ imprime_string:
 #       a0 = valor inteiro a ser impresso
 
 imprime_inteiro:
-    addi    sp, sp, -4
-    sw      ra, 0(sp)
+    addi    sp, sp, -4       #reserva 4 bytes 
+    sw      ra, 0(sp)        #salva o endereço de retorno
 
     li      a7, 1            # ecall 1: imprime um inteiro
     ecall
 
-    lw      ra, 0(sp)
-    addi    sp, sp, 4
-    ret
+    lw      ra, 0(sp)       # volta o endereço de retorno a partir da pilha
+    addi    sp, sp, 4       # libera 4 bytes
+    ret                     #retorna
