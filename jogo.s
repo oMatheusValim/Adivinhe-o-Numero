@@ -53,26 +53,25 @@ main:
     li      s3, 0            # contador de tentativas = 0
 
 loop_jogo:
-    # Solicita um palpite ao jogador
-    la      a0, msg_prompt
+    la      a0, msg_prompt   # exibe a mensagem de inicio do jogo
     jal     imprime_string
 
-    li      a7, 5            # ecall 5: le um numero inteiro do teclado
+    li      a7, 5            # a7 = 5 é um syscall que le um numero inteiro do teclado, e guarda em a0
     ecall
-    mv      s4, a0           # s4 = palpite do jogador
+    mv      s4, a0           # guarda o valor de a0 em s4, para não perder informação nas próximas chamadas
 
     # Cria um novo no na heap contendo o palpite
-    mv      a0, s4
-    jal     cria_no
-    mv      t1, a0           # t1 = endereco do novo no
+    mv      a0, s4           # passa o s4 como argumento
+    jal     cria_no          # cria o nó
+    mv      t1, a0           # t1 = endereco do novo nó
 
     addi    s3, s3, 1        # incrementa o contador de tentativas
 
-    # Insere o novo no no final da lista ligada (ordem cronologica)
-    beq     s1, zero, lista_vazia
-    sw      t1, 4(s2)        # tail->next = novo no
-    mv      s2, t1           # tail = novo no
-    j       compara_palpite
+    # Insere o novo nó no final da lista ligada (ordem cronologica)
+    beq     s1, zero, lista_vazia       # se head é null, a lista está vazia, e salta para o caso especial 
+    sw      t1, 4(s2)        # grava o endereço do nó no campo next que atualmente é a tail, pendurando o nó no fim da lista
+    mv      s2, t1           # Atualiza a tail para que aponte para o novo nó
+    j       compara_palpite  
 lista_vazia:
     mv      s1, t1           # head = novo no
     mv      s2, t1           # tail = novo no
