@@ -1,12 +1,12 @@
 # Convencao de chamada adotada:
-#   a0-a7 : argumentos de funcao / valores de retorno / syscalls
-#   t0-t6 : registradores temporarios (nao preservados entre chamadas)
-#   s0-s11: registradores salvos (preservados entre chamadas)
-#   ra    : endereco de retorno (salvo/restaurado quando ha chamadas aninhadas)
+#   a0-a7 : passa argumentos para a função e ecall, e também carrega valores de retorno 
+#   t0-t6 : registradores temporarios, pode ser sobrescritos por qualquer função chamada
+#   s0-s11: registradores salvos, vai ser um backup do valor antigo da pilha e pode ser utilizado para restaurar
+#   ra    : endereco de retorno, gravado automaticamente pela jal 
 #   sp    : ponteiro de pilha (usado apenas para salvar/restaurar registradores,
 #           nunca para armazenar os nos da lista ligada)
 
-
+# o asciz é para que exiba a mensagem e dê como ação terminada. Isso acontece por causa do "z" no fim, que significa 'zero-terminated', colocando um \0 no fim.
 .data
     # Mensagens do jogo
     msg_boas_vindas:      .asciz "\n Bem-vindo ao jogo ADIVINHE O NUMERO!\n\nO computador escolheu um numero entre 1 e 100.\nTente adivinhar em quantas tentativas conseguir!\n\n"
@@ -24,8 +24,9 @@
 
 main:
     # reserva espaco na pilha para os registradores salvos
-    addi    sp, sp, -32
-    sw      ra, 28(sp)
+    addi    sp, sp, -32     # a pilha cresce para baixo, abrindo 32 bytes de espaço no topo da pilha 
+    # sw salva um registrador nesse espaço
+    sw      ra, 28(sp)       # para saber onde retornar ao salvar outras funções
     sw      s0, 24(sp)       # s0 = numero secreto sorteado
     sw      s1, 20(sp)       # s1 = ponteiro para a cabeca da lista (head)
     sw      s2, 16(sp)       # s2 = ponteiro para a cauda da lista (tail)
@@ -33,18 +34,18 @@ main:
     sw      s4, 8(sp)        # s4 = palpite atual do jogador
 
     # Exibe a mensagem de boas-vindas e as instrucoes
-    la      a0, msg_boas_vindas
-    jal     imprime_string
+    la      a0, msg_boas_vindas     # coloca em a0 o endereço da mensagem de boas vindas
+    jal     imprime_string          # vai para a função e grava o endereço de retorno em ra
 
     # Obtem uma semente a partir do relogio do sistema
-    li      a7, 30           # ecall 30: retorna o tempo atual (a0 = parte baixa em ms)
-    ecall
-    mv      t0, a0           # usa a parte baixa do tempo como semente do LCG
+    li      a7, 30           # ecall 30: retorna o tempo atual (a0 = parte baixa em ms e a1 = parte alta)
+    ecall                    # dispara a chamada para o sistema
+    mv      t0, a0           # copia o valor de a0 para t0 para usar como valor temporário para passar adiante 
 
     # Gera o numero secreto (entre 1 e 100) usando o LCG
-    mv      a0, t0
-    jal     gera_aleatorio
-    mv      s0, a0           # s0 = numero secreto
+    mv      a0, t0           # passa t0 como argumento para gerar o número aleatório
+    jal     gera_aleatorio   # gera o valor aleatorio
+    mv      s0, a0           # guarda em s0 o número aleatório
 
     # Inicializa a lista ligada de tentativas (vazia)
     li      s1, 0            # head = NULL
